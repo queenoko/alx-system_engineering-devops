@@ -1,0 +1,5 @@
+Host quima
+    Hostname 52.87.153.8
+    User ubuntu
+    IdentifyFile ~/.ssh/school
+    PasswordAuthentication no
