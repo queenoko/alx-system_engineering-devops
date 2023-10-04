@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# This script Configure Nginx for (web-01 and web-02)
+# custom HTTP header must be X-Served-By...
+# The value of the custom HTTP header must be the hostname of the server Nginx
+sudo apt-get update
+sudo apt-get -y install nginx
+
+# This configure firewall to allow request through port 80...
+sudo ufw allow 'Nginx HTTP'
+
+sudo mkdir -p /var/www/html
+
+# This will change permissions to create file and directory
+sudo chmod -R 755 /var/www
+
+#  This will create the index page
+echo 'Hello World!' |sudo tee  /var/www/html/index.html
+
+# This will create a webpage for error 404
+echo "Ceci n'est pas une page" |sudo tee /var/www/html/404.html
+
+# This code configure redirect for single page(/redirect_me) and add header to display hostname
+string_for_replacement="server_name _;\n\tadd_header X-Served-By \$hostname;\n\trewrite ^\/redirect_me https:\/\/www.blog.ehoneahobed.com permanent;"
+sudo sed -i "s/server_name _;/$string_for_replacement/" /etc/nginx/sites-enabled/default
+
+# This code to configure redirect for 404 error page...
+string_for_replacement="listen 80 default_server;\n\terror_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}"
+sudo sed -i "s/listen 80 default_server;/$string_for_replacement/" /etc/nginx/sites-enabled/default
+
+# This will restart the web server after update
+sudo service nginx restart
